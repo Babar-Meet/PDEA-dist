@@ -30,7 +30,11 @@ echo.
 echo Creating release v%VERSION% ...
 echo.
 
-gh release create v%VERSION% "%EXE_PATH%#PDEA-Setup.exe" --repo Babar-Meet/PDEA-dist --title "PDEA v%VERSION%" --notes "## PDEA v%VERSION%"
+copy /y "%EXE_PATH%" "%TEMP%\PDEA-Setup.exe" >nul
+
+gh release create v%VERSION% "%TEMP%\PDEA-Setup.exe" --repo Babar-Meet/PDEA-dist --title "PDEA v%VERSION%" --notes "## PDEA v%VERSION%"
+
+del "%TEMP%\PDEA-Setup.exe" >nul 2>&1
 
 if %ERRORLEVEL% EQU 0 (
   echo.
