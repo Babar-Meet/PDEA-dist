@@ -78,7 +78,14 @@
       line-height: 1.7;
     }
 
-    /* ── Download Button ── */
+    /* ── Download Buttons ── */
+    .download-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
     .download-btn {
       display: inline-flex;
       align-items: center;
@@ -99,12 +106,45 @@
       box-shadow: 0 8px 40px rgba(99,102,241,0.5);
     }
     .download-btn svg { width: 24px; height: 24px; fill: currentColor; }
+
+    .download-btn-alt {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: #c4b5fd;
+      border: 1px solid #6366f1;
+      border-radius: 14px;
+      padding: 16px 32px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, background .2s, border-color .2s;
+    }
+    .download-btn-alt:hover {
+      transform: translateY(-2px);
+      background: rgba(99,102,241,0.1);
+      border-color: #a855f7;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.2);
+    }
+    .download-btn-alt svg { width: 20px; height: 20px; fill: currentColor; }
+
     .download-meta {
-      margin-top: 12px;
+      margin-top: 14px;
       font-size: 0.85rem;
       color: #64748b;
     }
     .download-meta strong { color: #94a3b8; font-weight: 500; }
+
+    .download-hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #475569;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
 
     /* ── OS Notice ── */
     .os-notice {
@@ -204,7 +244,9 @@
       .hero { padding: 60px 0 40px; }
       .hero h1 { font-size: 2rem; }
       .hero p { font-size: 1rem; }
+      .download-group { flex-direction: column; }
       .download-btn { padding: 14px 28px; font-size: 1rem; }
+      .download-btn-alt { padding: 12px 24px; font-size: 0.9rem; }
       .features-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
@@ -235,17 +277,26 @@
         PDEA turns your video library into a streaming experience.
       </p>
 
-      <a class="download-btn" href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe">
-        <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
-        Download for Windows
-      </a>
+      <div class="download-group">
+        <a id="download-installer" class="download-btn" href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe">
+          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
+          Download Installer
+        </a>
+        <a id="download-portable" class="download-btn-alt" href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Portable.zip">
+          <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H7v-2h7v2zm3-4H7V10h10v2z"/></svg>
+          Portable (.zip)
+        </a>
+      </div>
       <div class="download-meta">
         <strong>Latest version</strong> &middot; Windows 10/11 &middot; x64
+      </div>
+      <div class="download-hint">
+        The installer sets up firewall rules and shortcuts. The portable ZIP just runs &mdash; no admin needed.
       </div>
 
       <div class="os-notice">
         <svg viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
-        Windows only &middot; x64 &middot; NSIS Installer
+        Windows only &middot; x64 &middot; NSIS Installer or Portable ZIP
       </div>
     </div>
   </section>
