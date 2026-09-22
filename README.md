@@ -25,7 +25,6 @@ URLs never go stale when a new version ships.
 | `index.html` | Landing page source, deployed to https://getpdea.vercel.app/ |
 | `PDEA_LOGO.svg` | App logo used by the landing page |
 | `publish.bat` | Release helper (run from the app repo): copies `PDEA-Setup-<version>.exe` and `PDEA-<version>-win.zip` out of `..\PDEA\dist-installer`, renames them to the fixed names above, and creates the GitHub release |
-| `.vercel/` | Vercel project link for the landing page |
 
 ## Upgrading
 
