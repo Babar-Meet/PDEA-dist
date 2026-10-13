@@ -330,7 +330,7 @@ ul { list-style: none; }
 
 .vrow {
   display: grid;
-  grid-template-columns: 1fr 130px 230px;
+  grid-template-columns: 1fr 120px 130px 230px;
   align-items: center;
   gap: 18px;
   padding: 17px 24px;
@@ -344,6 +344,7 @@ ul { list-style: none; }
 .vrow__flag { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; background: var(--sunken); color: var(--ink-2); }
 
 .vrow__date { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.vrow__n { font-family: var(--mono); font-size: 12.5px; color: var(--ink-2); text-align: right; }
 .vrow__dl { display: flex; gap: 9px; justify-content: flex-end; }
 
 .chip {
@@ -478,7 +479,6 @@ ul { list-style: none; }
     </div>
 
     <div class="hero__meta">
-      <span class="pill"><b id="dl-count">&mdash;</b> downloads</span>
       <span class="pill">Windows 10 or newer</span>
       <span class="pill">64-bit</span>
     </div>
@@ -491,8 +491,7 @@ ul { list-style: none; }
     <p class="overline">What it does</p>
     <h2 class="band__title">Nine parts of it.</h2>
     <p class="band__lede">
-      Nothing here is a promise about the future. This is what the app does today,
-      on the build you are about to download.
+      Everything listed here ships in version 3.0.1. Nothing is planned or in progress.
     </p>
 
     <div class="cards">
@@ -722,18 +721,15 @@ ul { list-style: none; }
 
       if (!rels.length) throw new Error("no releases");
 
-      // GitHub's own counters, never an invented number.
-      var total = rels.reduce(function (sum, r) {
-        return sum + r.assets.reduce(function (s, a) { return s + (a.download_count || 0); }, 0);
-      }, 0);
-      if (countEl && total > 0) countEl.textContent = fmt(total);
-
       body.innerHTML = rels.map(function (r, i) {
         var tag = String(r.tag_name).replace(/^v/, "");
         var base = "https://github.com/Babar-Meet/PDEA-dist/releases/download/" + r.tag_name + "/";
         var setup = find(r.assets, /setup/i);
         var portable = find(r.assets, /portable/i);
         var dl = "";
+
+        // GitHub's own counters, never an invented number.
+        var n = r.assets.reduce(function (s, a) { return s + (a.download_count || 0); }, 0);
 
         if (setup) dl += '<a class="chip" href="' + base + encodeURIComponent(setup) + '">Installer</a>';
         if (portable) dl += '<a class="chip" href="' + base + encodeURIComponent(portable) + '">Portable</a>';
@@ -744,6 +740,7 @@ ul { list-style: none; }
           + (i === 0 ? '<span class="vrow__flag">Latest</span>' : "")
           + "</span>"
           + '<span class="vrow__date">' + esc(shortDate(r.published_at)) + "</span>"
+          + '<span class="vrow__n">' + n + (n === 1 ? " download" : " downloads") + "</span>"
           + '<span class="vrow__dl">' + dl + "</span>"
           + "</div>";
       }).join("");
