@@ -81,8 +81,11 @@ ul { list-style: none; }
   color: var(--text-3);
 }
 
-/* ══ nav ══ */
-.nav { position: sticky; top: 0; z-index: 60; background: var(--white); border-bottom: 2px solid var(--black); }
+/* ══ nav ══
+   The header is inverted to black. Per the system, Primary #0A0A0A is
+   the dominant tone, so the bar carries it and the page below reads as
+   white content on a dark frame. Red stays reserved for hover. */
+.nav { position: sticky; top: 0; z-index: 60; background: var(--black); border-bottom: 2px solid var(--black); }
 
 .nav__in { display: flex; align-items: center; justify-content: space-between; gap: 24px; height: 66px; }
 
@@ -90,7 +93,7 @@ ul { list-style: none; }
 
 /* the logo art is 270x197. Forcing it square crops it, so size by height only. */
 .brand__mark { width: auto; height: 32px; }
-.brand__name { font-family: var(--display); font-size: 20px; letter-spacing: -0.02em; }
+.brand__name { font-family: var(--display); font-size: 20px; letter-spacing: -0.02em; color: var(--white); }
 
 .nav__links { display: flex; gap: 28px; flex-wrap: wrap; }
 
@@ -101,9 +104,42 @@ ul { list-style: none; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 4px 0;
+  color: #D4D4D4;
+  transition: color .12s linear;
 }
 
 .nav__link:hover { color: var(--red); }
+
+/* hamburger only exists on small screens */
+.nav__burger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 26px;
+  height: 18px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.nav__burger-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--white);
+  transition: transform .16s linear, opacity .16s linear;
+}
+
+.nav__burger[aria-expanded="true"] .nav__burger-line:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.nav__burger[aria-expanded="true"] .nav__burger-line:nth-child(2) { opacity: 0; }
+.nav__burger[aria-expanded="true"] .nav__burger-line:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
 
 /* ══ hero ══ */
 .hero { padding-block: 84px 72px; border-bottom: 2px solid var(--black); }
@@ -281,19 +317,22 @@ ul { list-style: none; }
 .note--lead { color: var(--text); font-weight: 500; }
 .note--lead::before { background: var(--red); border-color: var(--red); }
 
-/* ══ versions ══ */
+/* ══ versions ══
+   Each row carries its own detail panel, hidden until asked for. One
+   place lists everything about a version, so nothing has to be
+   reconciled against a separate changelog. */
 .vtable { border-top: 2px solid var(--black); border-bottom: 2px solid var(--black); }
 
-.vrow {
+.vrow { border-bottom: 1px solid var(--rule); }
+.vrow:last-child { border-bottom: 0; }
+
+.vrow__main {
   display: grid;
-  grid-template-columns: 1fr 130px 130px 230px;
+  grid-template-columns: 1fr 130px 130px auto;
   align-items: center;
   gap: 18px;
   padding: 18px 0;
-  border-bottom: 1px solid var(--rule);
 }
-
-.vrow:last-child { border-bottom: 0; }
 
 .vrow__ver { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 16px; font-weight: 700; }
 
@@ -301,7 +340,41 @@ ul { list-style: none; }
 
 .vrow__date { font-family: var(--mono); font-size: 12px; color: var(--text-3); }
 .vrow__n { font-family: var(--mono); font-size: 12.5px; color: var(--text-2); text-align: right; }
-.vrow__dl { display: flex; gap: 10px; justify-content: flex-end; }
+.vrow__dl { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+
+/* ghost button, per the system: no border until you mean it */
+.vrow__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: transparent;
+  border: 2px solid transparent;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color .12s linear, border-color .12s linear;
+}
+
+.vrow__more:hover { color: var(--red); }
+.vrow__more:focus-visible { border-color: var(--black); }
+
+.vrow__caret { transition: transform .12s linear; }
+.vrow__more[aria-expanded="true"] .vrow__caret { transform: rotate(90deg); }
+
+.vdetail { padding: 4px 0 24px; border-top: 1px solid var(--rule); margin-top: -1px; }
+/* one item per row. This only renders when the row is opened, so there
+   is no reason to split it across two columns. */
+.vdetail__list { list-style: none; display: flex; flex-direction: column; gap: 10px; padding-top: 20px; }
+
+.vdetail__list li { position: relative; padding-left: 22px; font-size: 14.5px; line-height: 1.6; color: var(--text-2); }
+.vdetail__list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border: 2px solid var(--text-3); }
+.vdetail__list li b { color: var(--text); font-weight: 600; }
+
+.vdetail__empty { font-size: 14px; color: var(--text-3); padding-top: 20px; }
 
 .chip {
   display: inline-flex;
@@ -351,13 +424,17 @@ ul { list-style: none; }
 
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
+/* ══ changelog styles retired
+   The changelog section is gone. Each version row now carries its own
+   detail panel, so there is one list of versions and one place to edit.
+   ══ */
+
 @media (max-width: 1000px) {
   .cards { column-count: 2; }
-  .log__notes { grid-template-columns: minmax(0, 1fr); }
   .reqs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .req:nth-child(2n) { border-right: 0; }
   .req:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
-  .vrow { grid-template-columns: 1fr auto; }
+  .vrow__main { grid-template-columns: 1fr auto; }
   .vrow__date { display: none; }
 }
 
@@ -366,8 +443,39 @@ ul { list-style: none; }
 
   /* padding-block only. The `padding` shorthand here would reset
      padding-inline to 0 and jam content against the screen edge. */
-  .nav__in { height: auto; padding-block: 14px; flex-wrap: wrap; row-gap: 12px; }
-  .nav__links { width: 100%; order: 2; justify-content: space-between; font-size: 11px; }
+  .nav__in {
+    height: auto;
+    padding-block: 14px;
+    flex-wrap: wrap;
+    row-gap: 0;
+    align-items: center;
+  }
+
+  /* links collapse into a panel; the burger is the only control up there */
+  .nav__burger { display: flex; }
+
+  .nav__links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    border-top: 2px solid #0A0A0A;
+    margin-top: 14px;
+    padding-bottom: 8px;
+  }
+
+  .nav__links.is-open { display: flex; }
+
+  .nav__link {
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    border-bottom: 1px solid #2E2E2E;
+    font-size: 13px;
+  }
+
+  .nav__link:last-child { border-bottom: 0; }
+
   .hero { padding-block: 52px 44px; }
   .band { padding-block: 56px; }
   .cta { grid-template-columns: minmax(0, 1fr); }
@@ -375,11 +483,10 @@ ul { list-style: none; }
   .reqs { grid-template-columns: minmax(0, 1fr); }
   .req { border-right: 0; border-bottom: 1px solid var(--rule); }
   .req:last-child { border-bottom: 0; }
-  .vrow { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .vrow__main { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .vrow__date { display: block; }
   .vrow__n { text-align: left; }
   .vrow__dl { justify-content: flex-start; }
-  .log__get { margin-left: 0; width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -398,9 +505,14 @@ ul { list-style: none; }
       <img class="brand__mark" src="/PDEA_LOGO.svg" alt="" />
       <span class="brand__name">PDEA</span>
     </a>
-    <div class="nav__links">
+    <button class="nav__burger" id="nav-burger" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
+      <span class="nav__burger-line"></span>
+      <span class="nav__burger-line"></span>
+      <span class="nav__burger-line"></span>
+    </button>
+
+    <div class="nav__links" id="nav-links">
       <a class="nav__link" href="#features">Features</a>
-      <a class="nav__link" href="#new">Changelog</a>
       <a class="nav__link" href="#versions">Versions</a>
       <a class="nav__link" href="https://github.com/Babar-Meet" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
@@ -543,49 +655,6 @@ ul { list-style: none; }
   </div>
 </section>
 
-<!-- ══ what changed ══ -->
-<section class="band" id="new">
-  <div class="shell">
-    <p class="overline">Changelog</p>
-    <h2 class="band__title">What changed in version 3.</h2>
-    <p class="band__lede">
-      The download queue was rebuilt. Everything else carried forward.
-    </p>
-
-    <div class="log">
-
-      <article class="log__row">
-        <div class="log__head">
-          <span class="log__ver">v3.0.1</span>
-          <span class="log__flag">Latest</span>
-          <span class="log__date">13 Oct 2026</span>
-          <a class="log__get" href="https://github.com/Babar-Meet/PDEA-dist/releases/download/v3.0.1/PDEA-Setup.exe">Download</a>
-        </div>
-        <div class="log__notes">
-          <p class="note note--lead">The download page moved to a new host, so the <b>update button</b> inside the app points at the new address.</p>
-          <p class="note">Everything else is identical to 3.0.0.</p>
-        </div>
-      </article>
-
-      <article class="log__row">
-        <div class="log__head">
-          <span class="log__ver">v3.0.0</span>
-          <span class="log__date">13 Oct 2026</span>
-          <a class="log__get" href="https://github.com/Babar-Meet/PDEA-dist/releases/download/v3.0.0/PDEA-Setup.exe">Download</a>
-        </div>
-        <div class="log__notes">
-          <p class="note note--lead"><b>Cancel, pause and resume now work.</b> They used to report success even when nothing happened, so a stuck download looked exactly like a working one.</p>
-          <p class="note">A download you are busy with <b>cannot be overwritten</b> by a stale update mid-click.</p>
-          <p class="note">Cancelling one download <b>no longer deletes another&rsquo;s</b> partial files.</p>
-          <p class="note">Deleting only ever removes files <b>inside your library folders</b>.</p>
-          <p class="note">The header is now <b>two buttons</b>, and the update prompt only appears when there is genuinely an update.</p>
-        </div>
-      </article>
-
-    </div>
-  </div>
-</section>
-
 <!-- ══ versions ══ -->
 <section class="band" id="versions">
   <div class="shell">
@@ -593,6 +662,7 @@ ul { list-style: none; }
     <h2 class="band__title">Every version.</h2>
     <p class="band__lede">
       Each row downloads that exact version, not the newest one.
+      Open a row to see what is in it.
     </p>
 
     <div class="vtable">
@@ -637,9 +707,58 @@ ul { list-style: none; }
 
 <script>
 (function () {
+  var burger = document.getElementById("nav-burger");
+  var links = document.getElementById("nav-links");
+
+  function setMenu(open) {
+    links.classList.toggle("is-open", open);
+    burger.setAttribute("aria-expanded", String(open));
+    burger.setAttribute("aria-label", open ? "Close menu" : "Menu");
+  }
+
+  burger.addEventListener("click", function () {
+    setMenu(burger.getAttribute("aria-expanded") !== "true");
+  });
+
+  // Escape closes it, and tapping a link navigates then closes it.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && burger.getAttribute("aria-expanded") === "true") {
+      setMenu(false);
+      burger.focus();
+    }
+  });
+
+  links.addEventListener("click", function (e) {
+    if (e.target.closest(".nav__link")) setMenu(false);
+  });
+
+  // Leaving mobile width with the menu open would otherwise strand it open.
+  var mq = window.matchMedia("(min-width: 701px)");
+  var onChange = function (e) { if (e.matches) setMenu(false); };
+  if (mq.addEventListener) mq.addEventListener("change", onChange);
+  else mq.addListener(onChange);
+})();
+
+(function () {
   var API = "https://api.github.com/repos/Babar-Meet/PDEA-dist/releases";
   var body = document.getElementById("vers-body");
   var MAJOR = 3;
+
+  /* What each version actually contains. Kept in one place so there is
+     no separate changelog to keep in sync with this list. */
+  var CONTENTS = {
+    "3.0.1": [
+      "The download page moved to a new host, so the <b>update button</b> inside the app points at the new address.",
+      "Everything else is identical to 3.0.0."
+    ],
+    "3.0.0": [
+      "<b>Cancel, pause and resume now work.</b> They used to report success even when nothing happened, so a stuck download looked exactly like a working one.",
+      "A download you are busy with <b>cannot be overwritten</b> by a stale update mid-click.",
+      "Cancelling one download <b>no longer deletes another&rsquo;s</b> partial files.",
+      "Deleting only ever removes files <b>inside your library folders</b>.",
+      "The header is now <b>two buttons</b>, and the update prompt only appears when there is genuinely an update."
+    ]
+  };
 
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) {
@@ -657,6 +776,18 @@ ul { list-style: none; }
     var hits = (assets || []).map(function (a) { return a.name; }).filter(function (n) { return re.test(n); });
     hits.sort(function (a, b) { return a.split("-").length - b.split("-").length; });
     return hits[0];
+  }
+
+  /* one panel per row, wired to its button */
+  function wire(root) {
+    root.querySelectorAll(".vrow__more").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var open = btn.getAttribute("aria-expanded") === "true";
+        var panel = document.getElementById(btn.getAttribute("aria-controls"));
+        btn.setAttribute("aria-expanded", String(!open));
+        panel.hidden = open;
+      });
+    });
   }
 
   fetch(API, { cache: "no-store" })
@@ -677,6 +808,7 @@ ul { list-style: none; }
         var base = "https://github.com/Babar-Meet/PDEA-dist/releases/download/" + r.tag_name + "/";
         var setup = find(r.assets, /setup/i);
         var portable = find(r.assets, /portable/i);
+        var panelId = "vdetail-" + tag;
         var dl = "";
 
         // GitHub's own counters, never an invented number.
@@ -686,15 +818,31 @@ ul { list-style: none; }
         if (portable) dl += '<a class="chip" href="' + base + encodeURIComponent(portable) + '">Portable</a>';
         if (!dl) dl += '<span class="chip">No downloads</span>';
 
+        var items = CONTENTS[tag];
+        var detail = items
+          ? '<ul class="vdetail__list">' + items.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul>"
+          : '<p class="vdetail__empty">Full details for this version are on the ' +
+            '<a href="' + base + '" target="_blank" rel="noopener noreferrer">release page</a>.</p>';
+
         return '<div class="vrow">'
+          + '<div class="vrow__main">'
           + '<span class="vrow__ver">v' + esc(tag)
           + (i === 0 ? '<span class="vrow__flag">Latest</span>' : "")
           + "</span>"
           + '<span class="vrow__date">' + esc(shortDate(r.published_at)) + "</span>"
           + '<span class="vrow__n">' + n + (n === 1 ? " download" : " downloads") + "</span>"
-          + '<span class="vrow__dl">' + dl + "</span>"
+          + '<span class="vrow__dl">'
+          + '<button class="vrow__more" type="button" aria-expanded="false" aria-controls="' + panelId + '">'
+          + '<span class="vrow__caret" aria-hidden="true">&#9656;</span>What&rsquo;s in it'
+          + "</button>"
+          + dl
+          + "</span>"
+          + "</div>"
+          + '<div class="vdetail" id="' + panelId + '" hidden>' + detail + "</div>"
           + "</div>";
       }).join("");
+
+      wire(body);
     })
     .catch(function () {
       body.innerHTML = '<div class="vnote">Could not load the version list. All releases are on the '
