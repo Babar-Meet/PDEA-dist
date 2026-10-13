@@ -12,6 +12,9 @@ Desktop.ini
 # Vercel output
 .vercel/
 
+# Cloudflare Wrangler local cache
+.wrangler/
+
 # Node (just in case)
 node_modules/
 
