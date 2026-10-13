@@ -146,6 +146,86 @@
       line-height: 1.5;
     }
 
+    /* ── Older versions ── */
+    .versions {
+      padding: 56px 0 0;
+    }
+    .versions h2 {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .versions-note {
+      text-align: center;
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 24px;
+    }
+    .version-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .version-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      background: #14141f;
+      border: 1px solid #1e1e2a;
+      border-radius: 10px;
+    }
+    .version-row--current {
+      border-color: #3b82f6;
+    }
+    .version-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .version-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #1e293b;
+      color: #94a3b8;
+    }
+    .version-tag--latest {
+      background: var(--accent-solid, #3ea6ff);
+      color: #0f0f0f;
+    }
+    .version-date { font-size: 0.78rem; color: #64748b; }
+    .version-links { display: flex; gap: 8px; flex-shrink: 0; }
+    .version-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid #2a2a3a;
+      color: #cbd5e1;
+      transition: background-color .2s, border-color .2s, color .2s;
+    }
+    .version-btn:hover { background: #1c1c2b; border-color: #3ea6ff; color: #f1f5f9; }
+    .version-btn svg { width: 14px; height: 14px; fill: currentColor; }
+    .versions-fallback {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
     /* ── OS Notice ── */
     .os-notice {
       display: inline-flex;
@@ -288,7 +368,7 @@
         </a>
       </div>
       <div class="download-meta">
-        <strong>Latest version</strong> &middot; Windows 10/11 &middot; x64
+        <strong id="latest-version">Latest version</strong> &middot; Windows 10/11 &middot; x64
       </div>
       <div class="download-hint">
         The installer sets up firewall rules and shortcuts. The portable ZIP just runs &mdash; no admin needed.
@@ -298,6 +378,17 @@
         <svg viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
         Windows only &middot; x64 &middot; NSIS Installer or Portable ZIP
       </div>
+    </div>
+  </section>
+
+  <!-- Older versions -->
+  <section class="versions">
+    <div class="container">
+      <h2>Older versions</h2>
+      <p class="versions-note">Prefer the latest release. These are here if you need to go back.</p>
+      <ul class="version-list" id="version-list">
+        <li class="versions-fallback" id="versions-loading">Loading versions&hellip;</li>
+      </ul>
     </div>
   </section>
 
@@ -379,6 +470,96 @@
       <p>&copy; 2026 Babariya Meet &middot; PDEA &mdash; Proprietary software. All rights reserved.</p>
     </div>
   </footer>
+
+<!-- Versions: read the real release list from GitHub so this page can never
+       go stale. Each release links to its own tagged assets, not latest/. -->
+  <script>
+    (function () {
+      var API = "https://api.github.com/repos/Babar-Meet/PDEA-dist/releases";
+      var list = document.getElementById("version-list");
+      var latestLabel = document.getElementById("latest-version");
+
+      function esc(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+
+      function dateOf(iso) {
+        if (!iso) return "";
+        var d = new Date(iso);
+        if (isNaN(d)) return "";
+        return d.toLocaleDateString(undefined, {
+          year: "numeric", month: "short", day: "numeric",
+        });
+      }
+
+      // Older releases predate the fixed asset names, so match whatever the
+      // release actually carries rather than assuming one filename.
+      function assetFor(assets, kind) {
+        var names = (assets || []).map(function (a) { return a.name; });
+        if (kind === "setup") {
+          var setup = names.filter(function (n) { return /setup/i.test(n) && /\.exe$/i.test(n); });
+          // Prefer the unversioned name, it is what latest/ resolves to.
+          return setup.sort(function (a, b) {
+            return a.split("-").length - b.split("-").length;
+          })[0];
+        }
+        var zip = names.filter(function (n) { return /portable/i.test(n) && /\.zip$/i.test(n); });
+        return zip[0];
+      }
+
+      function row(rel, isLatest) {
+        var tag = String(rel.tag_name || "").replace(/^v/, "");
+        var setup = assetFor(rel.assets, "setup");
+        var portable = assetFor(rel.assets, "portable");
+        var base = "https://github.com/Babar-Meet/PDEA-dist/releases/download/" + rel.tag_name + "/";
+        var links = "";
+        if (setup) {
+          links += '<a class="version-btn" href="' + base + encodeURIComponent(setup) + '">'
+            + '<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2L5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>'
+            + "Installer</a>";
+        }
+        if (portable) {
+          links += '<a class="version-btn" href="' + base + encodeURIComponent(portable) + '">'
+            + '<svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>'
+            + "Portable</a>";
+        }
+        return '<li class="version-row' + (isLatest ? " version-row--current" : "") + '">'
+          + '<span class="version-name">v' + esc(tag)
+          + (isLatest ? '<span class="version-tag version-tag--latest">Latest</span>' : "")
+          + '</span>'
+          + '<span class="version-date">' + esc(dateOf(rel.published_at)) + "</span>"
+          + '<span class="version-links">' + links + "</span>"
+          + "</li>";
+      }
+
+      fetch(API, { cache: "no-store" })
+        .then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        })
+        .then(function (releases) {
+          var real = releases.filter(function (r) {
+            return !r.draft && !r.prerelease && r.assets && r.assets.length;
+          });
+          if (!real.length) throw new Error("no releases");
+
+          var first = real[0];
+          var firstTag = String(first.tag_name || "").replace(/^v/, "");
+          if (latestLabel) latestLabel.textContent = "Latest version v" + firstTag;
+
+          list.innerHTML = real.map(function (r, i) { return row(r, i === 0); }).join("");
+        })
+        .catch(function () {
+          list.innerHTML = '<li class="versions-fallback">'
+            + "Could not load the version list. See the "
+            + '<a href="https://github.com/Babar-Meet/PDEA-dist/releases" '
+            + 'target="_blank" rel="noopener" style="color:#c4b5fd">releases page</a>.'
+            + "</li>";
+        });
+    })();
+  </script>
 
 </body>
 </html>
