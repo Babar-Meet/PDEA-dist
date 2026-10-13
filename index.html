@@ -3,40 +3,37 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>PDEA — your video library, on your disk</title>
-<meta name="description" content="PDEA is a Windows desktop app for downloading, organising and watching your own video library. Everything stays in folders you control." />
+<title>PDEA — your local video library, on Windows</title>
+<meta name="description" content="Point PDEA at your folders and everything plays, organised, searchable, and out of the way until you need it. Windows 10 and 11." />
 <link rel="icon" type="image/svg+xml" href="/PDEA_LOGO.svg" />
 <meta property="og:title" content="PDEA" />
-<meta property="og:description" content="Download, organise and watch your video library. No account, no cloud." />
+<meta property="og:description" content="Your local video library, on Windows." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
 <style>
-/* ═══ tokens ═══════════════════════════════════════════════ */
 :root {
   --ink: #0b0b0d;
   --surface: #121216;
-  --surface-2: #191920;
-  --line: rgba(255, 255, 255, 0.08);
-  --line-strong: rgba(255, 255, 255, 0.16);
+  --surface-2: #18181f;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.15);
   --text: #f2f4f8;
   --muted: #9aa1ad;
-  --quiet: #6b7280;
+  --quiet: #707783;
   --accent: #3ea6ff;
-  --signal: #34d399;
+  --green: #34d399;
 
   --display: "Sora", system-ui, sans-serif;
   --body: "Archivo", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --shell: 1120px;
-  --r: 12px;
+  --shell: 1140px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* ═══ base ══════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -51,497 +48,189 @@ body {
   overflow-x: hidden;
 }
 
-/* A single, very faint wash so the page is not a flat black rectangle.
-   Fixed, so it does not travel with the scroll. */
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+  content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(58rem 32rem at 18% -8%, rgba(62, 166, 255, 0.10), transparent 62%),
-    radial-gradient(46rem 30rem at 92% 4%, rgba(52, 211, 153, 0.05), transparent 60%);
+    radial-gradient(58rem 32rem at 12% -8%, rgba(62, 166, 255, 0.10), transparent 62%),
+    radial-gradient(44rem 28rem at 92% 4%, rgba(52, 211, 153, 0.045), transparent 60%);
 }
 
-.shell {
-  width: 100%;
-  max-width: var(--shell);
-  margin-inline: auto;
-  padding-inline: 24px;
-  position: relative;
-  z-index: 1;
-}
+.shell { width: 100%; max-width: var(--shell); margin-inline: auto; padding-inline: 24px; position: relative; z-index: 1; }
 
 a { color: inherit; text-decoration: none; }
-
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
+img { display: block; max-width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 .mono { font-family: var(--mono); }
 
-.sr {
-  position: absolute; width: 1px; height: 1px;
-  padding: 0; margin: -1px; overflow: hidden;
-  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
-}
+.sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* ═══ nav ═══════════════════════════════════════════════════ */
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: rgba(11, 11, 13, 0.78);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--line);
-}
-
-.nav__in {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 62px;
-  gap: 20px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.brand__mark {
-  width: 30px; height: 30px;
-  border-radius: 7px;
-  object-fit: cover;
-  display: block;
-}
-
+/* ══ nav ══ */
+.nav { position: sticky; top: 0; z-index: 60; background: rgba(11,11,13,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+.nav__in { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 20px; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--display); font-weight: 600; letter-spacing: -0.01em; }
+.brand__mark { width: 30px; height: 30px; border-radius: 7px; object-fit: cover; }
 .nav__links { display: flex; gap: 26px; }
-
-.nav__link {
-  font-size: 0.875rem;
-  color: var(--muted);
-  transition: color 0.15s var(--ease);
-}
-
+.nav__link { font-size: 0.875rem; color: var(--muted); transition: color 0.15s var(--ease); }
 .nav__link:hover { color: var(--text); }
 
-/* ═══ hero ══════════════════════════════════════════════════ */
-.hero { padding: 76px 0 68px; scroll-margin-top: 80px; }
-
-.hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  gap: 56px;
-  align-items: start;
-}
-
-.eyebrow {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--quiet);
-  margin-bottom: 22px;
-}
+/* ══ hero ══ */
+.hero { padding: 76px 0 72px; text-align: center; }
 
 .hero__title {
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(2.6rem, 5.4vw, 3.9rem);
-  line-height: 1.03;
+  font-size: clamp(2.3rem, 5vw, 3.6rem);
+  line-height: 1.06;
   letter-spacing: -0.035em;
-  margin-bottom: 22px;
-}
-
-.hero__title em {
-  font-style: normal;
-  color: var(--accent);
+  margin-bottom: 20px;
 }
 
 .hero__lede {
-  font-size: 1.06rem;
+  font-size: 1.08rem;
   color: var(--muted);
-  max-width: 42ch;
-  margin-bottom: 16px;
+  max-width: 54ch;
+  margin: 0 auto 32px;
 }
 
-.hero__claim {
-  font-size: 0.95rem;
-  color: var(--quiet);
-  max-width: 42ch;
-  margin-bottom: 34px;
-}
+.hero__lede b { color: var(--text); font-weight: 600; }
 
-/* ═══ the two download decisions ═══════════════════════════ */
-.get { display: flex; flex-direction: column; gap: 12px; max-width: 440px; }
+/* ══ the two ways to get it ══ */
+.get { display: flex; flex-direction: column; gap: 11px; width: 100%; max-width: 440px; margin: 0 auto; }
 
-.btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 15px 18px;
-  border-radius: var(--r);
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  transition: border-color 0.18s var(--ease), background 0.18s var(--ease), transform 0.18s var(--ease);
-}
+.btn { display: flex; align-items: center; gap: 14px; padding: 15px 18px; border-radius: 13px; border: 1px solid var(--line-2); background: var(--surface); text-align: left; transition: background 0.18s var(--ease), transform 0.18s var(--ease); }
+.btn:hover { background: var(--surface-2); transform: translateY(-1px); }
 
-.btn:hover { border-color: var(--line-strong); background: var(--surface-2); transform: translateY(-1px); }
-
-.btn__glyph {
-  flex-shrink: 0;
-  width: 38px; height: 38px;
-  display: grid; place-items: center;
-  border-radius: 9px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-}
-
+.btn__glyph { flex-shrink: 0; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); }
 .btn__glyph svg { width: 18px; height: 18px; fill: var(--muted); }
-
 .btn__body { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-
-.btn__name {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 0.98rem;
-  letter-spacing: -0.01em;
-}
-
+.btn__name { font-family: var(--display); font-weight: 600; font-size: 0.98rem; letter-spacing: -0.01em; }
 .btn__note { font-size: 0.8rem; color: var(--quiet); }
+.btn__tag { margin-left: auto; flex-shrink: 0; font-family: var(--mono); font-size: 0.7rem; color: var(--quiet); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); }
 
-.btn__go {
-  margin-left: auto;
-  flex-shrink: 0;
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--quiet);
-}
-
-/* primary: the recommended path, the only filled control on the page */
 .btn--primary { background: var(--accent); border-color: var(--accent); }
-
-.btn--primary .btn__glyph { background: rgba(11, 11, 13, 0.14); border-color: rgba(11, 11, 13, 0.18); }
-.btn--primary .btn__glyph svg { fill: #07131f; }
-.btn--primary .btn__name { color: #07131f; }
-.btn--primary .btn__note { color: rgba(7, 19, 31, 0.66); }
-.btn--primary .btn__go { color: rgba(7, 19, 31, 0.6); }
-
+.btn--primary .btn__glyph { background: rgba(8,18,30,0.16); border-color: rgba(8,18,30,0.2); }
+.btn--primary .btn__glyph svg { fill: #06121e; }
+.btn--primary .btn__name { color: #06121e; }
+.btn--primary .btn__note { color: rgba(6,18,30,0.66); }
+.btn--primary .btn__tag { color: rgba(6,18,30,0.62); border-color: rgba(6,18,30,0.2); }
 .btn--primary:hover { background: #5cb4ff; border-color: #5cb4ff; }
 
-.get__facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--quiet);
-  margin-top: 4px;
-}
+.get__meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px 16px; font-family: var(--mono); font-size: 0.735rem; color: var(--quiet); margin-top: 4px; }
+.get__meta b { color: var(--text); font-weight: 500; }
 
-.get__facts span { display: inline-flex; align-items: center; gap: 6px; }
-.get__facts span::before { content: ""; width: 3px; height: 3px; border-radius: 50%; background: var(--line-strong); }
-
-/* ═══ signature: the library panel ══════════════════════════ */
-.panel {
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: linear-gradient(180deg, var(--surface) 0%, #0e0e12 100%);
-  overflow: hidden;
-  box-shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.9);
-}
-
-.panel__bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.015);
-}
-
-.panel__dots { display: flex; gap: 5px; }
-
-.panel__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); }
-
-.panel__path {
-  font-family: var(--mono);
-  font-size: 0.72rem;
-  color: var(--quiet);
-  margin-left: 6px;
-}
-
-.panel__rows { padding: 6px; }
-
-.lib {
-  display: grid;
-  grid-template-columns: 20px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  padding: 11px 12px;
-  border-radius: 9px;
-  transition: background 0.15s var(--ease);
-}
-
-.lib:hover { background: rgba(255, 255, 255, 0.028); }
-
-.lib__icon { width: 18px; height: 18px; margin-top: 2px; fill: var(--quiet); }
-.lib--lock .lib__icon { fill: var(--signal); }
-
-.lib__name {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: 0.9rem;
-  letter-spacing: -0.005em;
-  margin-bottom: 2px;
-}
-
-.lib--lock .lib__name { color: var(--signal); }
-
-.lib__desc { font-size: 0.815rem; color: var(--muted); line-height: 1.5; }
-
-.panel__foot {
-  padding: 11px 16px;
-  border-top: 1px solid var(--line);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--quiet);
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-/* ═══ section scaffolding ══════════════════════════════════ */
-.band { padding: 68px 0; border-top: 1px solid var(--line); scroll-margin-top: 76px; }
-
-.band__head { margin-bottom: 34px; max-width: 62ch; }
+/* ══ sections ══ */
+.band { padding: 72px 0; border-top: 1px solid var(--line); scroll-margin-top: 78px; }
 
 .band__title {
   font-family: var(--display);
   font-weight: 600;
-  font-size: clamp(1.55rem, 2.9vw, 2.05rem);
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  margin-bottom: 10px;
+  font-size: clamp(1.5rem, 2.8vw, 1.95rem);
+  line-height: 1.16;
+  letter-spacing: -0.028em;
+  margin-bottom: 8px;
+  text-align: center;
 }
 
-.band__sub { color: var(--muted); font-size: 0.97rem; }
+.band__sub { color: var(--muted); font-size: 0.95rem; text-align: center; max-width: 58ch; margin: 0 auto 40px; }
 
-/* ═══ what's new: side by side ═════════════════════════════ */
-/* Cards are top-aligned, so a short one must not stretch and a tall one must
-   not push the pair apart. The column packs to the top instead. */
+/* ══ feature groups ══ */
+.feat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
+
+.feat__card { background: var(--surface); padding: 26px 24px 28px; }
+
+.feat__head { display: flex; align-items: center; gap: 11px; margin-bottom: 14px; }
+
+.feat__icon { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); }
+.feat__icon svg { width: 17px; height: 17px; fill: var(--accent); }
+.feat__card--lock .feat__icon svg { fill: var(--green); }
+
+.feat__name { font-family: var(--display); font-weight: 600; font-size: 1.02rem; letter-spacing: -0.015em; }
+
+.feat__list { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+
+.feat__list li { position: relative; padding-left: 17px; font-size: 0.845rem; color: var(--muted); line-height: 1.5; }
+
+.feat__list li::before { content: ""; position: absolute; left: 1px; top: 8px; width: 5px; height: 5px; border-radius: 1px; background: var(--line-2); transform: rotate(45deg); }
+
+.feat__list li b { color: var(--text); font-weight: 600; }
+
+/* ══ what's new ══ */
 .diff { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.rel { border: 1px solid var(--line); border-radius: 15px; background: var(--surface); padding: 22px; align-self: start; }
+.rel--current { border-color: rgba(62,166,255,0.32); background: linear-gradient(180deg, rgba(62,166,255,0.05), var(--surface) 60%); }
 
-.rel {
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface);
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  align-self: start;
-}
-
-.rel--current { border-color: rgba(62, 166, 255, 0.34); background: linear-gradient(180deg, rgba(62,166,255,0.05), var(--surface) 62%); }
-
-.rel__top {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-
-.rel__ver {
-  font-family: var(--mono);
-  font-weight: 500;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-}
-
-.rel__flag {
-  font-family: var(--mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  padding: 3px 7px;
-  border-radius: 5px;
-  background: rgba(52, 211, 153, 0.13);
-  color: var(--signal);
-}
-
+.rel__top { display: flex; align-items: center; gap: 10px; padding-bottom: 15px; margin-bottom: 15px; border-bottom: 1px solid var(--line); }
+.rel__ver { font-family: var(--mono); font-weight: 500; font-size: 1.02rem; }
+.rel__flag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.09em; text-transform: uppercase; padding: 3px 7px; border-radius: 5px; background: rgba(52,211,153,0.13); color: var(--green); }
 .rel__date { margin-left: auto; font-family: var(--mono); font-size: 0.72rem; color: var(--quiet); }
 
-.rel__list { list-style: none; display: flex; flex-direction: column; gap: 13px; margin-bottom: 20px; }
-
-/* The bullet is a marker, so it belongs on ::before with the text indented.
-   Making this a grid put the bare sentence into the 14px marker column and
-   wrapped it one word per line. */
-.rel__item {
-  position: relative;
-  padding-left: 20px;
-  font-size: 0.885rem;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
-.rel__item::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 9px;
-  width: 5px;
-  height: 5px;
-  border-radius: 1px;
-  background: var(--line-strong);
-  transform: rotate(45deg);
-}
-
+.rel__list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+.rel__item { position: relative; padding-left: 20px; font-size: 0.885rem; color: var(--muted); line-height: 1.55; }
+.rel__item::before { content: ""; position: absolute; left: 2px; top: 9px; width: 5px; height: 5px; border-radius: 1px; background: var(--line-2); transform: rotate(45deg); }
 .rel__item b { color: var(--text); font-weight: 600; }
 
-.rel__get {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 16px;
-  border-top: 1px solid var(--line);
-  font-family: var(--mono);
-  font-size: 0.76rem;
-  color: var(--muted);
-  transition: color 0.15s var(--ease);
-}
-
+.rel__get { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 15px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 0.76rem; color: var(--muted); transition: color 0.15s var(--ease); }
 .rel__get:hover { color: var(--accent); }
-
 .rel__get svg { width: 14px; height: 14px; fill: currentColor; }
 
-.rel__none { font-size: 0.885rem; color: var(--quiet); margin-bottom: 20px; }
-
-/* ═══ versions table ════════════════════════════════════════ */
-.vers { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
-
-.vers__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 200px;
-  align-items: center;
-  gap: 16px;
-  padding: 15px 20px;
-  border-bottom: 1px solid var(--line);
-}
-
+/* ══ versions ══ */
+.vers { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); max-width: 720px; margin-inline: auto; }
+.vers__row { display: grid; grid-template-columns: minmax(0, 1fr) 130px 210px; align-items: center; gap: 16px; padding: 15px 20px; border-bottom: 1px solid var(--line); }
 .vers__row:last-child { border-bottom: none; }
-.vers__row--current { background: rgba(62, 166, 255, 0.045); }
-
+.vers__row--current { background: rgba(62,166,255,0.045); }
 .vers__ver { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 0.92rem; }
-
 .vers__date { font-family: var(--mono); font-size: 0.78rem; color: var(--quiet); }
-
 .vers__dl { display: flex; gap: 8px; justify-content: flex-end; }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-family: var(--mono);
-  font-size: 0.74rem;
-  color: var(--muted);
-  transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease);
-}
-
-.chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(62, 166, 255, 0.06); }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); font-family: var(--mono); font-size: 0.74rem; color: var(--muted); transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease); }
+.chip:hover { border-color: var(--accent); color: var(--accent); background: rgba(62,166,255,0.06); }
 .chip svg { width: 13px; height: 13px; fill: currentColor; }
-
 .vers__note { padding: 14px 20px; font-size: 0.83rem; color: var(--quiet); background: rgba(255,255,255,0.012); }
 
-/* ═══ requirements strip, not cards ════════════════════════ */
-.reqs {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--surface);
-}
-
+/* ══ requirements ══ */
+.reqs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
 .req { padding: 22px 20px; border-right: 1px solid var(--line); }
 .req:last-child { border-right: none; }
+.req__k { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--quiet); margin-bottom: 7px; }
+.req__v { font-family: var(--display); font-weight: 500; font-size: 1rem; }
 
-.req__k {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  color: var(--quiet);
-  margin-bottom: 7px;
-}
-
-.req__v { font-family: var(--display); font-weight: 500; font-size: 1rem; letter-spacing: -0.01em; }
-
-/* ═══ footer ════════════════════════════════════════════════ */
+/* ══ footer ══ */
 .foot { border-top: 1px solid var(--line); padding: 34px 0 40px; }
-
 .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-
 .foot__links { display: flex; gap: 22px; font-size: 0.85rem; color: var(--muted); }
-.foot__links a { transition: color 0.15s var(--ease); }
 .foot__links a:hover { color: var(--text); }
-
 .foot__legal { font-size: 0.78rem; color: var(--quiet); }
 
-/* ═══ entrance ══════════════════════════════════════════════ */
+/* ══ entrance ══ */
 .rise { opacity: 0; transform: translateY(14px); animation: rise 0.72s var(--ease) forwards; }
 .rise--1 { animation-delay: 0.04s; }
 .rise--2 { animation-delay: 0.12s; }
 .rise--3 { animation-delay: 0.2s; }
 .rise--4 { animation-delay: 0.28s; }
-.rise--5 { animation-delay: 0.36s; }
 
 @keyframes rise { to { opacity: 1; transform: none; } }
 
-/* ═══ responsive ════════════════════════════════════════════ */
-@media (max-width: 940px) {
-  .hero__grid { grid-template-columns: minmax(0, 1fr); gap: 44px; }
+@media (max-width: 960px) {
+  .feat { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .diff { grid-template-columns: minmax(0, 1fr); }
   .reqs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .req:nth-child(2n) { border-right: none; }
   .req:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
-  .vers__row { grid-template-columns: minmax(0, 1fr) auto; }
-  .vers__date { display: none; }
 }
 
-@media (max-width: 620px) {
-  /* Wrap the nav rather than let "What's new" break onto two lines. */
+@media (max-width: 700px) {
+  .feat { grid-template-columns: minmax(0, 1fr); }
   .nav__in { height: auto; padding: 12px 0; flex-wrap: wrap; row-gap: 10px; }
   .nav__links { gap: 15px; width: 100%; justify-content: space-between; order: 2; }
   .nav__link { font-size: 0.78rem; }
-
-  .hero { padding: 40px 0 44px; }
-  .hero__title { font-size: clamp(2.1rem, 9vw, 2.7rem); }
-  .band { padding: 46px 0; }
-
+  .hero { padding: 48px 0 44px; }
+  .band { padding: 52px 0; }
+  .get { max-width: none; }
+  .btn__tag { display: none; }
   .reqs { grid-template-columns: minmax(0, 1fr); }
   .req { border-right: none; border-bottom: 1px solid var(--line); }
   .req:last-child { border-bottom: none; }
-
-  .get { max-width: none; }
-  .btn__go { display: none; }
-
-  /* Stack the version, date and buttons instead of cramming them on one row. */
+  .vers { max-width: none; }
   .vers__row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .vers__date { display: block; order: 3; }
   .vers__dl { justify-content: flex-start; order: 2; }
@@ -557,7 +246,6 @@ a { color: inherit; text-decoration: none; }
 
 <body>
 
-<!-- ═══ nav ═══ -->
 <nav class="nav">
   <div class="shell nav__in">
     <a class="brand" href="/">
@@ -565,7 +253,7 @@ a { color: inherit; text-decoration: none; }
       PDEA
     </a>
     <div class="nav__links">
-      <a class="nav__link" href="#library">Library</a>
+      <a class="nav__link" href="#features">Features</a>
       <a class="nav__link" href="#new">What&rsquo;s new</a>
       <a class="nav__link" href="#versions">Versions</a>
       <a class="nav__link" href="https://github.com/Babar-Meet" target="_blank" rel="noopener noreferrer">GitHub</a>
@@ -573,141 +261,173 @@ a { color: inherit; text-decoration: none; }
   </div>
 </nav>
 
-<!-- ═══ hero ═══ -->
+<!-- ══ hero ══ -->
 <header class="shell hero">
-  <div class="hero__grid">
+  <h1 class="hero__title rise rise--1">Your local video library,<br />on Windows.</h1>
+  <p class="hero__lede rise rise--2">
+    Point it at your folders and everything <b>plays</b>, <b>organised</b>,
+    <b>searchable</b>, and out of the way until you need it.
+  </p>
 
-    <div>
-      <p class="eyebrow rise rise--1">Windows desktop &middot; version 3.0.1</p>
+  <div class="get rise rise--3">
+    <a class="btn btn--primary" href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe">
+      <span class="btn__glyph"><svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg></span>
+      <span class="btn__body">
+        <span class="btn__name">Download installer</span>
+        <span class="btn__note">Adds shortcuts and firewall rules.</span>
+      </span>
+      <span class="btn__tag">Recommended</span>
+    </a>
 
-      <h1 class="hero__title rise rise--2">
-        Your video library,<br />on <em>your</em> disk.
-      </h1>
+    <a class="btn" href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Portable.zip">
+      <span class="btn__glyph"><svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg></span>
+      <span class="btn__body">
+        <span class="btn__name">Portable version</span>
+        <span class="btn__note">Unzip and run. No install, no admin.</span>
+      </span>
+      <span class="btn__tag">No admin</span>
+    </a>
 
-      <p class="hero__lede rise rise--3">
-        PDEA downloads, organises and plays your videos from ordinary folders on
-        your own machine. Download a channel, sort it into playlists, then watch
-        it the way you watch anything else.
-      </p>
-
-      <p class="hero__claim rise rise--3">
-        No account to create. Nothing uploaded. No subscription.
-      </p>
-
-      <!-- The two download decisions. Plain hrefs, so they work with JS off. -->
-      <div class="get rise rise--4">
-        <a class="btn btn--primary"
-           href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe">
-          <span class="btn__glyph">
-            <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
-          </span>
-          <span class="btn__body">
-            <span class="btn__name">Download installer</span>
-            <span class="btn__note">Recommended. Adds shortcuts and firewall rules.</span>
-          </span>
-          <span class="btn__go">.exe</span>
-        </a>
-
-        <a class="btn"
-           href="https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Portable.zip">
-          <span class="btn__glyph">
-            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-          </span>
-          <span class="btn__body">
-            <span class="btn__name">Portable version</span>
-            <span class="btn__note">Unzip and run. No installer, no admin prompt.</span>
-          </span>
-          <span class="btn__go">.zip</span>
-        </a>
-
-        <div class="get__facts">
-          <span>Windows 10 / 11</span>
-          <span>64-bit</span>
-          <span>v3.0.1</span>
-        </div>
-      </div>
+    <div class="get__meta">
+      <span><b class="mono" id="dl-count">&mdash;</b> downloads</span>
+      <span>Windows 10 / 11</span>
+      <span>64-bit</span>
+      <span>v3.0.1</span>
     </div>
-
-    <!-- Signature: the app's own library, described rather than decorated. -->
-    <section class="panel rise rise--5" id="library" aria-labelledby="library-h">
-      <h2 class="sr" id="library-h">What the library does</h2>
-
-      <div class="panel__bar">
-        <span class="panel__dots" aria-hidden="true">
-          <span class="panel__dot"></span><span class="panel__dot"></span><span class="panel__dot"></span>
-        </span>
-        <span class="panel__path">library /</span>
-      </div>
-
-      <div class="panel__rows">
-        <div class="lib">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>
-          <div>
-            <div class="lib__name">All Videos</div>
-            <div class="lib__desc">Everything you have downloaded, in one grid.</div>
-          </div>
-        </div>
-
-        <div class="lib">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M21 6H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zm-9 8.5V8l6 3.5-6 3.5z"/></svg>
-          <div>
-            <div class="lib__name">Playlists</div>
-            <div class="lib__desc">Group by channel, album or whatever mood suits.</div>
-          </div>
-        </div>
-
-        <div class="lib">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg>
-          <div>
-            <div class="lib__name">Categories</div>
-            <div class="lib__desc">Your own folders, nested however you like.</div>
-          </div>
-        </div>
-
-        <div class="lib">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
-          <div>
-            <div class="lib__name">Ambience</div>
-            <div class="lib__desc">Rain, wind, cafe, fire &mdash; each mixed on its own volume.</div>
-          </div>
-        </div>
-
-        <div class="lib lib--lock">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM9 8V6a3 3 0 0 1 6 0v2H9z"/></svg>
-          <div>
-            <div class="lib__name">Restricted</div>
-            <div class="lib__desc">Password-locked, with an auto-lock timer you set.</div>
-          </div>
-        </div>
-
-        <div class="lib">
-          <svg class="lib__icon" viewBox="0 0 24 24"><path d="M6 19a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM19 7H4.82l-.21-1.09A2 2 0 0 0 2.68 4H1v2h1.09l1.83 9.3A2 2 0 0 0 5.85 17H18v4h2v-4h1a1 1 0 0 0 0-2H5.85l-.07-.94L19 12V7z"/></svg>
-          <div>
-            <div class="lib__name">Trash</div>
-            <div class="lib__desc">Deleted stays recoverable until you empty it yourself.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel__foot">
-        <span>yt-dlp bundled</span>
-        <span>Dr.Player included</span>
-      </div>
-    </section>
-
   </div>
 </header>
 
-<!-- ═══ what's new ═══ -->
+<!-- ══ features ══ -->
+<section class="band" id="features">
+  <div class="shell">
+    <h2 class="band__title">What it does</h2>
+    <p class="band__sub">Nine parts of it.</p>
+
+    <div class="feat">
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+          <h3 class="feat__name">Play</h3>
+        </div>
+        <ul class="feat__list">
+          <li>A player built around <b>your keyboard</b></li>
+          <li><b>15 shortcuts</b>, all rebindable</li>
+          <li>Frame-by-frame stepping</li>
+          <li><b>0.1&times; to 16&times;</b>, hold to boost</li>
+          <li>Picks up where you stopped</li>
+          <li>Cinema mode, controls that get out of the way</li>
+          <li>MP4, MKV, AVI, MOV, WebM, MP3 and more</li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-8l-2-2z"/></svg></span>
+          <h3 class="feat__name">Library</h3>
+        </div>
+        <ul class="feat__list">
+          <li>Point it at <b>as many folders as you like</b></li>
+          <li>Grouped by folder, playlist and channel</li>
+          <li>Thumbnail grid, generated for you</li>
+          <li>Trash, with a live count</li>
+          <li>Reveal any file in Explorer</li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.5 6.5 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></span>
+          <h3 class="feat__name">Find</h3>
+        </div>
+        <ul class="feat__list">
+          <li>Searches your library, <b>best match first</b></li>
+          <li>A shortcut to <b>search YouTube</b> instead</li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg></span>
+          <h3 class="feat__name">Download</h3>
+        </div>
+        <ul class="feat__list">
+          <li><b>Paste a link, get the file</b></li>
+          <li><b>Simple</b> &mdash; best quality, merged automatically</li>
+          <li><b>Advanced</b> &mdash; pick every stream yourself</li>
+          <li><b>Direct</b> &mdash; choose quality and audio language</li>
+          <li><b>Playlist</b> &mdash; grab a whole playlist at once</li>
+          <li><b>144p all the way to 8K</b></li>
+          <li>Pause and resume, <b>even after you close the app</b></li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19 7.38 20 6.18 20A2.18 2.18 0 0 1 4 17.82a2.18 2.18 0 0 1 2.18-2.18zM4 4.44A15.44 15.44 0 0 1 19.44 20h-2.83A12.62 12.62 0 0 0 4 7.27V4.44zm0 5.66a9.43 9.43 0 0 1 9.94 9.9h-2.83A6.6 6.6 0 0 0 4 12.93V10.1z"/></svg></span>
+          <h3 class="feat__name">Follow</h3>
+        </div>
+        <ul class="feat__list">
+          <li>Track channels, <b>auto-download new uploads</b></li>
+          <li>New videos queue up behind a badge</li>
+          <li>You pick the quality</li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M17 3H7a2 2 0 0 0-2 2v16l7-3 7 3V5a2 2 0 0 0-2-2z"/></svg></span>
+          <h3 class="feat__name">Save</h3>
+        </div>
+        <ul class="feat__list">
+          <li>Bookmark links with thumbnails</li>
+          <li>Categories, plus <b>export and import</b></li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></span>
+          <h3 class="feat__name">Ambience</h3>
+        </div>
+        <ul class="feat__list">
+          <li>Layer looping background sounds</li>
+          <li>Volume and seek on each one</li>
+        </ul>
+      </article>
+
+      <article class="feat__card feat__card--lock">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M18 8h-1V6a5 5 0 0 0-10 0v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM9 8V6a3 3 0 0 1 6 0v2H9z"/></svg></span>
+          <h3 class="feat__name">Private shelf</h3>
+        </div>
+        <ul class="feat__list">
+          <li>A password-locked folder that <b>locks itself when time runs out</b></li>
+        </ul>
+      </article>
+
+      <article class="feat__card">
+        <div class="feat__head">
+          <span class="feat__icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm7.93 8h-3.02a15.6 15.6 0 0 0-1.2-5.02A8.03 8.03 0 0 1 19.93 10zM12 4.04c.72 1.04 1.63 2.9 1.9 5.96h-3.8c.27-3.06 1.18-4.92 1.9-5.96zM4.07 14a8.03 8.03 0 0 1 0-4h3.02c.1.66.22 1.3.38 1.92.17.69.39 1.34.63 1.96H4.07zm.93 2h3.02c.6 1.93 1.38 3.4 2.4 4.52A7.98 7.98 0 0 1 5 16zm3.02-8H5a7.98 7.98 0 0 1 5.42-4.52C9.42 5.6 8.63 7.07 8.02 9zm.98 2c.27 3.06 1.18 4.92 1.9 5.96.72-1.04 1.63-2.9 1.9-5.96H9zm4.77 8.52c1.02-1.12 1.8-3.49 2.4-4.52h3.02a7.98 7.98 0 0 1-5.42 4.52zM16.36 14c.24-.62.44-1.27.59-1.96.16-.62.28-1.26.38-1.92h3.02a8.03 8.03 0 0 1 0 4h-3.99z"/></svg></span>
+          <h3 class="feat__name">Built in</h3>
+        </div>
+        <ul class="feat__list">
+          <li>A browser, <b>without leaving the app</b></li>
+          <li>Play any file from the <b>Windows right-click menu</b></li>
+          <li>A second window for floating playback</li>
+          <li>An update button when a new version ships</li>
+        </ul>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ what's new ══ -->
 <section class="band" id="new">
   <div class="shell">
-    <div class="band__head">
-      <h2 class="band__title">What changed</h2>
-      <p class="band__sub">
-        Version 3 was a rebuild of the download queue. Version 3.0.1 moves the
-        download page to a new host. Here is each one against the one before it.
-      </p>
-    </div>
+    <h2 class="band__title">What changed in version 3</h2>
+    <p class="band__sub">The download queue was rebuilt. Everything else carried forward.</p>
 
     <div class="diff">
       <article class="rel rel--current">
@@ -717,12 +437,12 @@ a { color: inherit; text-decoration: none; }
           <span class="rel__date">13 Oct</span>
         </div>
         <ul class="rel__list">
-          <li class="rel__item">The download page now lives on <b>Cloudflare Pages</b> instead of Vercel, so it stays up.</li>
-          <li class="rel__item">The <b>update button</b> in the app points at the new address.</li>
+          <li class="rel__item">The download page moved to a new host, so the <b>update button</b> inside the app points at the new address.</li>
+          <li class="rel__item">Everything else is identical to 3.0.0.</li>
         </ul>
         <a class="rel__get" href="https://github.com/Babar-Meet/PDEA-dist/releases/download/v3.0.1/PDEA-Setup.exe">
           <span>Download v3.0.1</span>
-          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
         </a>
       </article>
 
@@ -732,74 +452,53 @@ a { color: inherit; text-decoration: none; }
           <span class="rel__date">13 Oct</span>
         </div>
         <ul class="rel__list">
-          <li class="rel__item"><b>Cancel, pause and resume tell the truth.</b> They used to report success even when nothing happened, so a stalled download looked identical to a working one.</li>
-          <li class="rel__item">A row you are acting on <b>cannot be overwritten</b> by a stale progress update while your click is still in flight.</li>
+          <li class="rel__item"><b>Cancel, pause and resume now work.</b> They used to report success even when nothing happened, so a stuck download looked exactly like a working one.</li>
+          <li class="rel__item">A download you are busy with <b>cannot be overwritten</b> by a stale update mid-click.</li>
           <li class="rel__item">Cancelling one download <b>no longer deletes another&rsquo;s</b> partial files.</li>
-          <li class="rel__item">Deleting is <b>confined to your library folders</b> and only ever touches regular files.</li>
-          <li class="rel__item">Header reduced to <b>two buttons</b>: who made it, and an update prompt that only appears when a newer build exists.</li>
+          <li class="rel__item">Deleting only ever removes files <b>inside your library folders</b>.</li>
+          <li class="rel__item">The header is now <b>two buttons</b>, and the update prompt only appears when there is genuinely an update.</li>
         </ul>
         <a class="rel__get" href="https://github.com/Babar-Meet/PDEA-dist/releases/download/v3.0.0/PDEA-Setup.exe">
           <span>Download v3.0.0</span>
-          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>
         </a>
       </article>
     </div>
   </div>
 </section>
 
-<!-- ═══ versions ═══ -->
+<!-- ══ versions ══ -->
 <section class="band" id="versions">
   <div class="shell">
-    <div class="band__head">
-      <h2 class="band__title">Every version</h2>
-      <p class="band__sub">Pick an exact version if you need to go back. Each row downloads that version, not the newest one.</p>
-    </div>
+    <h2 class="band__title">Every version</h2>
+    <p class="band__sub">Each row downloads that exact version, not the newest one.</p>
 
     <div class="vers">
-      <div id="vers-body">
-        <div class="vers__note">Loading versions&hellip;</div>
-      </div>
+      <div id="vers-body"><div class="vers__note">Loading versions&hellip;</div></div>
     </div>
 
-    <div class="band__head" style="margin-top:22px; margin-bottom:0;">
-      <p class="band__sub">
-        Older builds remain on
-        <a href="https://github.com/Babar-Meet/PDEA-dist/releases" target="_blank" rel="noopener noreferrer"
-           style="color:var(--accent);">the releases page</a>.
-        Upgrading preserves your library, and your restricted folders stay locked.
-      </p>
-    </div>
+    <p class="band__sub" style="margin:22px auto 0;">
+      Older builds are on the
+      <a href="https://github.com/Babar-Meet/PDEA-dist/releases" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">releases page</a>.
+      Upgrading keeps your library and your locked folders.
+    </p>
   </div>
 </section>
 
-<!-- ═══ requirements ═══ -->
+<!-- ══ requirements ══ -->
 <section class="band">
   <div class="shell">
-    <div class="band__head">
-      <h2 class="band__title">Before you install</h2>
-    </div>
+    <h2 class="band__title">Before you install</h2>
+    <p class="band__sub">&nbsp;</p>
     <div class="reqs">
-      <div class="req">
-        <div class="req__k">Operating system</div>
-        <div class="req__v">Windows 10 / 11</div>
-      </div>
-      <div class="req">
-        <div class="req__k">Architecture</div>
-        <div class="req__v">64-bit (x64)</div>
-      </div>
-      <div class="req">
-        <div class="req__k">Memory</div>
-        <div class="req__v">4 GB minimum</div>
-      </div>
-      <div class="req">
-        <div class="req__k">Disk</div>
-        <div class="req__v">500 MB + your videos</div>
-      </div>
+      <div class="req"><div class="req__k">Operating system</div><div class="req__v">Windows 10 / 11</div></div>
+      <div class="req"><div class="req__k">Architecture</div><div class="req__v">64-bit (x64)</div></div>
+      <div class="req"><div class="req__k">Memory</div><div class="req__v">4 GB minimum</div></div>
+      <div class="req"><div class="req__k">Disk</div><div class="req__v">500 MB + your videos</div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ footer ═══ -->
 <footer class="foot">
   <div class="shell foot__in">
     <div class="foot__links">
@@ -812,12 +511,10 @@ a { color: inherit; text-decoration: none; }
 </footer>
 
 <script>
-/* Version table. Reads the public release list so it cannot go stale.
-   Each row links that version's own tagged assets, never latest/. */
 (function () {
   var API = "https://api.github.com/repos/Babar-Meet/PDEA-dist/releases";
   var body = document.getElementById("vers-body");
-  // Keep the list to the current major. v3 is the stabilised line.
+  var countEl = document.getElementById("dl-count");
   var MAJOR = 3;
 
   function esc(s) {
@@ -828,20 +525,21 @@ a { color: inherit; text-decoration: none; }
 
   function shortDate(iso) {
     var d = new Date(iso);
-    if (isNaN(d)) return "";
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return isNaN(d) ? "" : d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
   }
 
   function find(assets, re) {
-    var names = (assets || []).map(function (a) { return a.name; });
-    var hit = names.filter(function (n) { return re.test(n); });
-    // Prefer the unversioned name: that is what latest/ resolves to.
-    hit.sort(function (a, b) { return a.split("-").length - b.split("-").length; });
-    return hit[0];
+    var hits = (assets || []).map(function (a) { return a.name; }).filter(function (n) { return re.test(n); });
+    hits.sort(function (a, b) { return a.split("-").length - b.split("-").length; });
+    return hits[0];
   }
 
-  function icon() {
+  function dlIcon() {
     return '<svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM12 2 5.33 9h3.84v4h3.66V9h3.84L12 2z"/></svg>';
+  }
+
+  function fmt(n) {
+    return n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "") + "k" : String(n);
   }
 
   fetch(API, { cache: "no-store" })
@@ -857,19 +555,21 @@ a { color: inherit; text-decoration: none; }
 
       if (!rels.length) throw new Error("no releases");
 
-      var rows = rels.map(function (r, i) {
+      // GitHub's own counters. Never an invented number.
+      var total = rels.reduce(function (sum, r) {
+        return sum + r.assets.reduce(function (s, a) { return s + (a.download_count || 0); }, 0);
+      }, 0);
+      if (countEl && total > 0) countEl.textContent = fmt(total);
+
+      body.innerHTML = rels.map(function (r, i) {
         var tag = String(r.tag_name).replace(/^v/, "");
         var base = "https://github.com/Babar-Meet/PDEA-dist/releases/download/" + r.tag_name + "/";
         var setup = find(r.assets, /setup/i);
         var portable = find(r.assets, /portable/i);
         var dl = "";
 
-        if (setup) {
-          dl += '<a class="chip" href="' + base + encodeURIComponent(setup) + '">' + icon() + "Installer</a>";
-        }
-        if (portable) {
-          dl += '<a class="chip" href="' + base + encodeURIComponent(portable) + '">' + icon() + "Portable</a>";
-        }
+        if (setup) dl += '<a class="chip" href="' + base + encodeURIComponent(setup) + '">' + dlIcon() + "Installer</a>";
+        if (portable) dl += '<a class="chip" href="' + base + encodeURIComponent(portable) + '">' + dlIcon() + "Portable</a>";
         if (!dl) dl = '<span class="chip">No downloads</span>';
 
         return '<div class="vers__row' + (i === 0 ? " vers__row--current" : "") + '">'
@@ -880,12 +580,9 @@ a { color: inherit; text-decoration: none; }
           + '<span class="vers__dl">' + dl + "</span>"
           + "</div>";
       }).join("");
-
-      body.innerHTML = rows;
     })
     .catch(function () {
-      body.innerHTML = '<div class="vers__note">Could not load the version list. '
-        + 'All releases are on the '
+      body.innerHTML = '<div class="vers__note">Could not load the version list. All releases are on the '
         + '<a href="https://github.com/Babar-Meet/PDEA-dist/releases" target="_blank" rel="noopener noreferrer" '
         + 'style="color:var(--accent)">releases page</a>.</div>';
     });
