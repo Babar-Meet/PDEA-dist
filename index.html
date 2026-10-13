@@ -110,6 +110,24 @@ ul { list-style: none; }
 
 .nav__link:hover { color: var(--red); }
 
+/* Buy Me a Coffee's own mark, copied into this repo as bmc-icon.png so
+   it never depends on their CDN. It is a navy cup on transparency, so
+   on the black bar it sits on a white tile. Do not recolour it. */
+.bmc-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--white);
+  flex: none;
+}
+
+/* the art is 884x1279, so size by height or it distorts */
+.bmc-mark img { display: block; height: 18px; width: auto; }
+
+.nav__link--bmc { display: inline-flex; align-items: center; gap: 9px; }
+
 /* hamburger only exists on small screens */
 .nav__burger {
   display: none;
@@ -515,6 +533,9 @@ ul { list-style: none; }
       <a class="nav__link" href="#features">Features</a>
       <a class="nav__link" href="#versions">Versions</a>
       <a class="nav__link" href="https://github.com/Babar-Meet" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="nav__link nav__link--bmc" href="https://buymeacoffee.com/babariyameet2005" target="_blank" rel="noopener noreferrer">
+        <span class="bmc-mark"><img src="/bmc-icon.png" alt="" /></span>Support
+      </a>
     </div>
   </div>
 </nav>
