@@ -434,6 +434,39 @@ ul { list-style: none; }
 
 .foot__legal { font-size: 12px; color: var(--text-3); }
 
+/* ══ back to top ══
+   Appears once the reader is past the hero, so a long page can be walked
+   back up without scrolling by hand. */
+.to-top {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--white);
+  border: 2px solid var(--black);
+  color: var(--black);
+  cursor: pointer;
+
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+  transition: opacity .2s linear, transform .2s linear, background-color .12s linear, color .12s linear;
+  z-index: 70;
+}
+
+.to-top.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+
+.to-top:hover { background: var(--black); color: var(--white); }
+
+@media (max-width: 700px) {
+  .to-top { bottom: 16px; right: 16px; width: 40px; height: 40px; }
+}
+
 /* ══ entrance ══ */
 .rise { opacity: 0; animation: rise .5s linear forwards; }
 .rise--1 { animation-delay: .04s; }
@@ -726,7 +759,28 @@ ul { list-style: none; }
   </div>
 </footer>
 
+<button class="to-top" id="to-top" type="button" aria-label="Back to top" title="Back to top">
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+    <path d="M10 16V4M10 4L4 10M10 4L16 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
 <script>
+(function () {
+  var btn = document.getElementById("to-top");
+
+  var toggle = function () {
+    btn.classList.toggle("is-visible", window.scrollY > 400);
+  };
+
+  window.addEventListener("scroll", toggle, { passive: true });
+  btn.addEventListener("click", function () {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  toggle();
+})();
+
 (function () {
   var burger = document.getElementById("nav-burger");
   var links = document.getElementById("nav-links");
@@ -770,7 +824,7 @@ ul { list-style: none; }
   var CONTENTS = {
     "3.1.0": [
       "The installer <b>no longer asks for administrator rights</b>. It installs per user, and the scary firewall prompt on first run is gone.",
-      "<b>Major security changes.</b> PDEA also stopped opening itself to the network, so websites can no longer reach into your library.",
+      "<b>Major security changes.</b>",
       "Ambiance sounds get <b>real thumbnails</b> drawn on first run: a frame for video, a waveform for audio.",
       "Right-click a sound in Active Mix to <b>remove it</b> from the mix.",
       "Header: the update button moved next to the app name, a <b>Support</b> area was added, and your installed version is now shown."
