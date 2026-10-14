@@ -1,76 +1,96 @@
-# PDEA-dist — Public Distribution of PDEA
+# PDEA
 
-This repo is the **public distribution channel** for **PDEA**, a video library,
-downloader and player for Windows.
+A video library, downloader and player for Windows. Point it at your folders and
+everything plays, stays organised, and is searchable until you need it.
 
-End users come here to download the app. Application source code lives in the
-private `Babar-Meet/PDEA` repo; this repo holds the download page and the
-published releases.
+**Version 3.1.0**
 
 ## Download
 
-- **Live site:** <https://pdea.pages.dev>
-- **Installer (recommended):** <https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe>
-  - Installs per user into `%LocalAppData%\Programs`. **Does not ask for
-    administrator rights.** Creates a desktop and Start Menu shortcut.
-- **Portable:** <https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Portable.zip>
-  - No install at all. Unzip and run.
-- **All versions:** <https://github.com/Babar-Meet/PDEA-dist/releases>
+- **[Installer](https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Setup.exe)**
+  Installs per user. No administrator rights needed. Adds a desktop and Start
+  Menu shortcut.
+- **[Portable](https://github.com/Babar-Meet/PDEA-dist/releases/latest/download/PDEA-Portable.zip)**
+  No install at all. Unzip and run.
 
-The `latest/download` links always serve the newest published release, so these
-URLs never go stale when a new version ships. The site is served from Cloudflare
-Pages; there is no Vercel deployment.
+Those two links always serve the newest published release. Older builds are on the
+[releases page](https://github.com/Babar-Meet/PDEA-dist/releases).
 
-## System requirements
+Download it from [pdea.pages.dev](https://pdea.pages.dev).
 
-- Windows 10 or newer, 64-bit (x64)
-- Installer: 279 MB. Portable ZIP: 382 MB
-- About 1 GB once installed, plus your videos
+## What it does
 
-There is no separate RAM requirement. Do not invent one: if a number here is not
-in the build output, it is not in the app.
+**Play**
+Add folders to your library, see them in the sidebar and play them. Plays MP4,
+MKV, AVI, MOV and WebM. Play, pause, skip forward and back, step a frame at a
+time, speed control, play the next video or preview it, hold the spacebar to play
+at a different speed, loop a video, sound control, cinema mode. 15 keyboard
+shortcuts and every one of them rebindable.
 
-## Firewall
+**Ambiance**
+Play songs you already have, on loop. Mix and match several at once, with a volume
+slider for each and a master volume for all of them.
 
-PDEA adds **no firewall rules**, so it never triggers the Windows Firewall
-"Allow access" prompt. Its backend listens on loopback only, on a port chosen at
-random on each launch.
+**Download**
+Needs an add-on such as yt-dlp installed. Four modes: **Direct** gives it a link
+and returns the best quality available, **Simple** picks the quality from a
+dropdown, **Advanced** chooses the video format, the audio format and the
+language, and **Playlist** takes a whole playlist. Pause, resume and cancel while
+it downloads.
 
-Versions up to 3.0.1 did add two inbound rules covering the private and public
-network profiles. Upgrading from those versions removes them.
+**Bookmarks**
+Save the web address of any video, kept in categories.
 
-## Upgrading
+**Subscriptions**
+Give it a channel link. When a new video is out it downloads itself, or waits
+for you. In the quality you prefer.
 
-Download the new installer or portable ZIP and run it. Upgrading preserves the
-existing video library and any password-locked folders. A clean uninstall removes
-everything, including the library.
+**Find**
+Search your videos fast. A ranking algorithm puts the best match at the top.
 
-## What is in this repo
+**Private area**
+Opens only with a passcode. Locks itself again when the timer runs out, or with
+one click straight away. Nothing in here is visible anywhere else in the app.
 
-| File | Purpose |
-| ---- | ------- |
-| `index.html` | Landing page source, deployed to <https://pdea.pages.dev> |
-| `PDEA_LOGO.svg` | App logo used by the landing page |
-| `bmc-icon.png` | Buy Me a Coffee mark used by the landing page's Support link |
-| `DESIGN.md` | The VoiceBox design system for the landing page. **Read it before editing `index.html`.** |
-| `publish.bat` | Release helper, run from the app repo. Copies the built artifacts out of `..\PDEA\dist-installer`, renames them to the fixed asset names above, and creates the GitHub release. |
+**Built-in browser**
+A browser built into the app.
 
-`publish.bat` creates the release immediately. That is a public deploy: once
-published, every existing download link on the site starts serving the new file
-for every user, old and new, with no rollback.
+## What you need
 
-## Deploying the landing page
+- Windows 10 or newer, 64-bit
+- 279 MB for the installer, 382 MB for the portable ZIP
+- About 1 GB once installed, plus your own videos
 
-```powershell
-npx wrangler pages deploy . --project-name pdea --branch main
-```
+There is no separate RAM requirement.
 
-Project `pdea`. Cloudflare Pages, not Vercel.
+## Good to know
 
-## Editing the landing page
+**It will not ask for administrator rights.** The installer writes to your own
+user profile. If it ever did ask, something is wrong.
 
-Every factual claim on the page must be checked against the app before it is
-written. Claims that were wrong before are recorded in `DESIGN.md` with where to
-verify them. Download counts come from the GitHub releases API, per release.
+**It will not ask about your firewall.** PDEA adds no firewall rules and only
+listens on your own machine, on a port picked at random each launch, so Windows
+has nothing to ask you about.
+
+**It does not phone home.** No analytics, no telemetry, no tracking. The only
+network traffic is what you ask for: playing your own files, and downloading.
+
+**Upgrading keeps your library.** Your videos, settings and any password-locked
+folders all survive. A clean uninstall removes everything, including the library.
+
+## Reporting a problem
+
+Say which version you are on. It is shown in the info panel, the `i` button in
+the header, and on the download page next to each release.
+
+## About this repo
+
+This is the public distribution channel: the download page and the published
+releases. Application source is private and is not published here.
+
+The landing page is a single hand-written `index.html` with no build step. Its
+design system and the rules for editing it are in [DESIGN.md](DESIGN.md) — read
+that first. Any claim on the page must be checked against the app before it is
+written down.
 
 © 2026 Babariya Meet. PDEA is proprietary software. All rights reserved.
