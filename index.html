@@ -542,7 +542,7 @@ ul { list-style: none; }
 
 <!-- ══ hero ══ -->
 <header class="shell hero">
-  <p class="overline rise rise--1">Windows desktop app &middot; version 3.0.1</p>
+  <p class="overline rise rise--1">Windows desktop app &middot; version 3.1.0</p>
 
   <h1 class="hero__title rise rise--2">
     Your local video library, on Windows.
@@ -585,7 +585,7 @@ ul { list-style: none; }
     <p class="overline">What it does</p>
     <h2 class="band__title">What PDEA does.</h2>
     <p class="band__lede">
-      Everything listed here ships in version 3.0.1. Nothing is planned or in progress.
+      Everything listed here ships in version 3.1.0. Nothing is planned or in progress.
     </p>
 
     <div class="cards">
@@ -768,6 +768,13 @@ ul { list-style: none; }
   /* What each version actually contains. Kept in one place so there is
      no separate changelog to keep in sync with this list. */
   var CONTENTS = {
+    "3.1.0": [
+      "The installer <b>no longer asks for administrator rights</b>. It installs per user, and the scary firewall prompt on first run is gone.",
+      "Your library is <b>no longer readable by websites</b> you visit. Every request to PDEA now needs a secret generated fresh on each launch.",
+      "Ambiance sounds get <b>real thumbnails</b> drawn on first run: a frame for video, a waveform for audio.",
+      "Right-click a sound in Active Mix to <b>remove it</b> from the mix.",
+      "The info panel now shows your <b>current installed version</b>, and Support has its own menu."
+    ],
     "3.0.1": [
       "The download page moved to a new host, so the <b>update button</b> inside the app points at the new address.",
       "Everything else is identical to 3.0.0."
