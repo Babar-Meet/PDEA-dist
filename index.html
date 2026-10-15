@@ -391,6 +391,31 @@ ul { list-style: none; }
 .vdetail__list li { position: relative; padding-left: 22px; font-size: 14.5px; line-height: 1.6; color: var(--text-2); }
 .vdetail__list li::before { content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; border: 2px solid var(--text-3); }
 .vdetail__list li b { color: var(--text); font-weight: 600; }
+.vdetail__list li strong { color: var(--text); font-weight: 600; }
+.vdetail__list li em, .vdetail__list li i { color: inherit; }
+.vdetail__list li code.vmd-code { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--rule); padding: 1px 5px; color: var(--text); }
+.vdetail__list li a { color: var(--text); border-bottom: 2px solid var(--rule); font-weight: 500; }
+.vdetail__list li a:hover { border-color: var(--red); color: var(--red); }
+
+/* markdown detail blocks (escape-first guard). Same VoiceBox tokens as
+   the list above: display headings, square markers, mono code, red hover.
+   Only used when a CONTENTS item contains markdown block syntax; legacy
+   single-line notes stay as plain <li> text so they look unchanged. */
+.vmd { display: flex; flex-direction: column; gap: 10px; padding-top: 20px; font-family: var(--body); }
+.vmd--in-li { padding-top: 4px; }
+.vmd-p { font-size: 14.5px; line-height: 1.6; color: var(--text-2); }
+.vmd-h { font-family: var(--display); font-size: 14px; letter-spacing: -0.01em; line-height: 1.35; color: var(--text); margin-top: 8px; }
+.vmd-h--3 { font-size: 13px; }
+.vmd-p strong, .vmd-ul li strong, .vmd-ol li strong, .vmd-h strong { color: var(--text); font-weight: 600; }
+.vmd-ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.vmd-ul li { position: relative; padding-left: 17px; font-size: 14.5px; line-height: 1.55; color: var(--text-2); }
+.vmd-ul li::before { content: ""; position: absolute; left: 0; top: 9px; width: 7px; height: 7px; background: var(--black); }
+.vmd-ol { list-style: none; counter-reset: vmd; display: flex; flex-direction: column; gap: 7px; }
+.vmd-ol li { position: relative; counter-increment: vmd; padding-left: 26px; font-size: 14.5px; line-height: 1.55; color: var(--text-2); }
+.vmd-ol li::before { content: counter(vmd) "."; position: absolute; left: 0; top: 1px; font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--text); }
+.vmd-code { font-family: var(--mono); font-size: 12.5px; background: var(--surface); border: 1px solid var(--rule); padding: 1px 5px; color: var(--text); }
+.vmd a { color: var(--text); border-bottom: 2px solid var(--rule); font-weight: 500; }
+.vmd a:hover { border-color: var(--red); color: var(--red); }
 
 .vdetail__empty { font-size: 14px; color: var(--text-3); padding-top: 20px; }
 
@@ -869,6 +894,135 @@ ul { list-style: none; }
     });
   }
 
+  /* escape-first markdown guard for CONTENTS detail panels.
+     Order is fixed: esc() everything, restore the minimal allowlist
+     (<b> <i> <code> and <a href> http/https only), then markdown.
+     Anything else stays escaped so <script> and javascript: hrefs are
+     inert. Entities used by existing notes (&rsquo; etc.) are restored
+     so current entries look identical. Subset ported from dist-drplayer:
+     ##/### headings, - and 1. lists, `code`, **bold**, *italic*,
+     http/https links with rel noopener. */
+  function restoreAllowlist(t) {
+    t = String(t);
+    t = t.replace(/&amp;((?:rsquo|lsquo|rdquo|ldquo|mdash|ndash|hellip|copy|quot|amp|lt|gt|#\d+|#x[0-9a-fA-F]+);)/g, "&$1");
+    t = t.replace(/&lt;b&gt;/gi, "<b>").replace(/&lt;\/b&gt;/gi, "</b>");
+    t = t.replace(/&lt;i&gt;/gi, "<i>").replace(/&lt;\/i&gt;/gi, "</i>");
+    t = t.replace(/&lt;code&gt;/gi, '<code class="vmd-code">').replace(/&lt;\/code&gt;/gi, "</code>");
+    function okHref(enc) {
+      var dec = enc.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+      return /^https?:\/\//i.test(dec);
+    }
+    /* javascript: pairs collapse to inner text first, so no stray </a>
+       survives; remaining http(s) opens are restored with rel noopener. */
+    t = t.replace(/&lt;a\s+href=&quot;(.*?)&quot;\s*&gt;(.*?)&lt;\/a&gt;/gi, function (m, hrefEnc, inner) {
+      if (!okHref(hrefEnc)) return inner;
+      return m;
+    });
+    t = t.replace(/&lt;a\s+href=&#39;(.*?)&#39;\s*&gt;(.*?)&lt;\/a&gt;/gi, function (m, hrefEnc, inner) {
+      if (!okHref(hrefEnc)) return inner;
+      return m;
+    });
+    t = t.replace(/&lt;a\s+href=&quot;(.*?)&quot;\s*&gt;/gi, function (m, hrefEnc) {
+      if (!okHref(hrefEnc)) return "";
+      return '<a href="' + hrefEnc + '" target="_blank" rel="noopener noreferrer">';
+    });
+    t = t.replace(/&lt;a\s+href=&#39;(.*?)&#39;\s*&gt;/gi, function (m, hrefEnc) {
+      if (!okHref(hrefEnc)) return "";
+      return '<a href="' + hrefEnc + '" target="_blank" rel="noopener noreferrer">';
+    });
+    t = t.replace(/&lt;\/a&gt;/gi, "</a>");
+    return t;
+  }
+
+  /* inline transforms on already-escaped input. Code spans are parked
+     first so ** and * inside code stay literal. Links allow http/https
+     only, anything else (javascript:) falls back to plain link text. */
+  function mdInlineEsc(t) {
+    var codes = [];
+    t = t.replace(/`([^`\n]+)`/g, function (m, g) {
+      codes.push(g);
+      return "\u0001" + (codes.length - 1) + "\u0001";
+    });
+    t = t.replace(/\[([^\]]+)\]\(((?:[^()\s]|\([^()]*\))+)\)/g, function (m, txt, href) {
+      var dec = href.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+      if (!/^https?:\/\//i.test(dec)) return txt;
+      return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + txt + "</a>";
+    });
+    t = t.replace(/\*\*([^*`\n]+)\*\*/g, "<strong>$1</strong>");
+    t = t.replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
+    t = t.replace(/\u0001(\d+)\u0001/g, function (m, i) {
+      return '<code class="vmd-code">' + codes[+i] + "</code>";
+    });
+    return t;
+  }
+
+  function mdInlineSafe(raw) {
+    return mdInlineEsc(restoreAllowlist(esc(raw)));
+  }
+
+  function mdBodySafe(src) {
+    var raw = String(src || "").replace(/\r\n?/g, "\n");
+    if (!raw.trim()) return "";
+    var lines = restoreAllowlist(esc(raw)).split("\n");
+    var html = "";
+    var ulOpen = false;
+    var olOpen = false;
+    function closeLists() {
+      if (ulOpen) { html += "</ul>"; ulOpen = false; }
+      if (olOpen) { html += "</ol>"; olOpen = false; }
+    }
+    for (var i = 0; i < lines.length; i++) {
+      var trim = lines[i].trim();
+      if (!trim) { closeLists(); continue; }
+      var h = trim.match(/^#{1,3}\s+(.+)$/);
+      if (h) {
+        closeLists();
+        var sub = /^###\s/.test(trim);
+        html += sub ? '<h4 class="vmd-h vmd-h--3">' + mdInlineEsc(h[1]) + "</h4>"
+          : '<h4 class="vmd-h">' + mdInlineEsc(h[1]) + "</h4>";
+        continue;
+      }
+      var ul = trim.match(/^(?:-|\*)\s+(.+)$/);
+      if (ul) {
+        if (olOpen) { html += "</ol>"; olOpen = false; }
+        if (!ulOpen) { html += '<ul class="vmd-ul">'; ulOpen = true; }
+        html += "<li>" + mdInlineEsc(ul[1]) + "</li>";
+        continue;
+      }
+      var ol = trim.match(/^\d+\.\s+(.+)$/);
+      if (ol) {
+        if (ulOpen) { html += "</ul>"; ulOpen = false; }
+        if (!olOpen) { html += '<ol class="vmd-ol">'; olOpen = true; }
+        html += "<li>" + mdInlineEsc(ol[1]) + "</li>";
+        continue;
+      }
+      closeLists();
+      html += '<p class="vmd-p">' + mdInlineEsc(trim) + "</p>";
+    }
+    closeLists();
+    return html;
+  }
+
+  /* legacy CONTENTS items are single-line notes with <b> tags: keep them
+     as one <li> so layout never shifts. Only items with markdown block
+     syntax (##/###, -/* lists, 1. lists, or multi-line) take the block
+     path inside the same <li>. */
+  function isBlockMd(src) {
+    var lines = String(src || "").split("\n");
+    for (var k = 0; k < lines.length; k++) {
+      var t = lines[k].trim();
+      if (/^#{1,3}\s+\S/.test(t)) return true;
+      if (/^(?:-|\*)\s+\S/.test(t)) return true;
+      if (/^\d+\.\s+\S/.test(t)) return true;
+    }
+    return lines.length > 1;
+  }
+
+  function renderItem(src) {
+    if (isBlockMd(src)) return '<div class="vmd vmd--in-li">' + mdBodySafe(src) + "</div>";
+    return mdInlineSafe(src);
+  }
+
   function shortDate(iso) {
     var d = new Date(iso);
     if (isNaN(d)) return "";
@@ -923,7 +1077,7 @@ ul { list-style: none; }
 
         var items = CONTENTS[tag];
         var detail = items
-          ? '<ul class="vdetail__list">' + items.map(function (t) { return "<li>" + t + "</li>"; }).join("") + "</ul>"
+          ? '<ul class="vdetail__list">' + items.map(function (t) { return "<li>" + renderItem(t) + "</li>"; }).join("") + "</ul>"
           : '<p class="vdetail__empty">Full details for this version are on the ' +
             '<a href="' + base + '" target="_blank" rel="noopener noreferrer">release page</a>.</p>';
 
