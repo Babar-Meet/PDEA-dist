@@ -575,7 +575,8 @@ ul { list-style: none; }
   .vrow__main { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .vrow__date { display: block; }
   .vrow__n { text-align: left; }
-  .vrow__dl { justify-content: flex-start; }
+  .vrow__dl { flex-direction: column; align-items: stretch; width: 100%; justify-content: flex-start; }
+  .vrow__dl .chip, .vrow__more { width: 100%; justify-content: flex-start; text-align: left; white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1037,10 +1038,12 @@ ul { list-style: none; }
 
   /* one panel per row, wired to its button */
   function wire(root) {
-    root.querySelectorAll(".vrow__more").forEach(function (btn) {
+    var btns = root.querySelectorAll(".vrow__more");
+    Array.prototype.forEach.call(btns, function (btn) {
       btn.addEventListener("click", function () {
-        var open = btn.getAttribute("aria-expanded") === "true";
         var panel = document.getElementById(btn.getAttribute("aria-controls"));
+        if (!panel) return;
+        var open = btn.getAttribute("aria-expanded") === "true";
         btn.setAttribute("aria-expanded", String(!open));
         panel.hidden = open;
       });
