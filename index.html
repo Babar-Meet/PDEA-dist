@@ -917,7 +917,7 @@ ul { list-style: none; }
         // GitHub's own counters, never an invented number.
         var n = r.assets.reduce(function (s, a) { return s + (a.download_count || 0); }, 0);
 
-        if (setup) dl += '<a class="chip" href="' + base + encodeURIComponent(setup) + '">Installer</a>';
+        if (setup) dl += '<a class="chip" href="' + base + encodeURIComponent(setup) + '">Installer (Setup)</a>';
         if (portable) dl += '<a class="chip" href="' + base + encodeURIComponent(portable) + '">Portable</a>';
         if (!dl) dl += '<span class="chip">No downloads</span>';
 
