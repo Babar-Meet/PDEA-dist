@@ -394,6 +394,19 @@ ul { list-style: none; }
 
 .vdetail__empty { font-size: 14px; color: var(--text-3); padding-top: 20px; }
 
+/* ══ skeleton rows ══
+   Static placeholders so first paint is instant with zero JS. Grey
+   blocks only: no red. The fetch replaces them with the real rows. */
+.vrow.is-loading .vrow__ver {
+  color: transparent;
+  background: var(--surface-rais);
+  min-width: 140px;
+  min-height: 22px;
+  animation: pulse 1.2s linear infinite;
+}
+
+@keyframes pulse { 50% { opacity: .45; } }
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -720,7 +733,11 @@ ul { list-style: none; }
     </p>
 
     <div class="vtable">
-      <div id="vers-body"><div class="vnote">Loading versions&hellip;</div></div>
+      <div id="vers-body">
+        <div class="vrow is-loading" aria-hidden="true"><div class="vrow__main"><span class="vrow__ver">&hellip;</span></div></div>
+        <div class="vrow is-loading" aria-hidden="true"><div class="vrow__main"><span class="vrow__ver">&hellip;</span></div></div>
+        <div class="vrow is-loading" aria-hidden="true"><div class="vrow__main"><span class="vrow__ver">&hellip;</span></div></div>
+      </div>
     </div>
 
     <p class="vnote">
