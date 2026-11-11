@@ -782,7 +782,7 @@ ul { list-style: none; }
     <div class="reqs" style="margin-top:40px;">
       <div class="req"><div class="req__k">Operating system</div><div class="req__v">Windows 10 or newer</div></div>
       <div class="req"><div class="req__k">Architecture</div><div class="req__v">64-bit (x64)</div></div>
-      <div class="req"><div class="req__k">Download size</div><div class="req__v">279 MB installer, 382 MB portable</div></div>
+      <div class="req"><div class="req__k">Download size</div><div class="req__v">293 MB installer, 401 MB portable</div></div>
       <div class="req"><div class="req__k">Disk once installed</div><div class="req__v">About 1 GB, plus your videos</div></div>
     </div>
     <p class="vnote">
@@ -860,7 +860,18 @@ ul { list-style: none; }
 (function () {
   var API = "https://api.github.com/repos/Babar-Meet/PDEA-dist/releases";
   var body = document.getElementById("vers-body");
-  var MAJOR = 3;
+  var MIN_VERSION = "3.3.3";
+
+  function compareSemver(a, b) {
+    var pa = String(a).replace(/^v/, "").split(".").map(function (x) { return parseInt(x, 10) || 0; });
+    var pb = String(b).replace(/^v/, "").split(".").map(function (x) { return parseInt(x, 10) || 0; });
+    for (var i = 0; i < 3; i++) {
+      var na = pa[i] || 0, nb = pb[i] || 0;
+      if (na > nb) return 1;
+      if (na < nb) return -1;
+    }
+    return 0;
+  }
 
   /* What each version actually contains. Kept in one place so there is
      no separate changelog to keep in sync with this list. */
@@ -1076,7 +1087,8 @@ ul { list-style: none; }
     .then(function (all) {
       var rels = all.filter(function (r) {
         if (r.draft || r.prerelease || !r.assets || !r.assets.length) return false;
-        return parseInt(String(r.tag_name).replace(/^v/, "").split(".")[0], 10) === MAJOR;
+        var tag = String(r.tag_name).replace(/^v/, "");
+        return compareSemver(tag, MIN_VERSION) >= 0;
       });
 
       if (!rels.length) throw new Error("no releases");
